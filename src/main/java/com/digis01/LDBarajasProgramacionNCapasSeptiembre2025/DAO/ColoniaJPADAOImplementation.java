@@ -1,7 +1,6 @@
 package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO;
 
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.ColoniaJPA;
-import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.ML.Colonia;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;

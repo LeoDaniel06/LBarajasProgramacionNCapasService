@@ -25,22 +25,6 @@ public class EstadoJPA {
     @JoinColumn(name="idpais")
     public PaisJPA PaisJPA;
 
-    public int getIdEstado(){
-        return this.IdEstado;
-    }
-            
-    public void setIdEstado(int IdEstado) {
-        this.IdEstado = IdEstado;
-    }
-
-    public String getNombre() {
-        return Nombre;
-    }
-
-    public void setNombre(String Nombre) {
-        this.Nombre = Nombre;
-    }
-
     public PaisJPA getPaisJPA() {
         return PaisJPA;
     }

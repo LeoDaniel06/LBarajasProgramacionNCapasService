@@ -25,22 +25,6 @@ public class MunicipioJPA {
     @JoinColumn(name="idestado")
     public EstadoJPA EstadoJPA;
 
-    public int getIdMunicipio() {
-        return IdMunicipio;
-    }
-
-    public void setIdMunicipio(int IdMunicipio) {
-        this.IdMunicipio = IdMunicipio;
-    }
-
-    public String getNombre() {
-        return Nombre;
-    }
-
-    public void setNombre(String Nombre) {
-        this.Nombre = Nombre;
-    }
-
     public EstadoJPA getEstadoJPA() {
         return EstadoJPA;
     }

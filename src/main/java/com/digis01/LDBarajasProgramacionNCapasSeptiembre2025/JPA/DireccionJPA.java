@@ -36,38 +36,6 @@ public class DireccionJPA {
     @JoinColumn(name="idusuario")
     public UsuarioJPA UsuarioJPA;
 
-    public Integer getIdDireccion() {
-        return IdDireccion;
-    }
-
-    public void setIdDireccion(Integer IdDireccion) {
-        this.IdDireccion = IdDireccion;
-    }
-
-    public String getCalle() {
-        return Calle;
-    }
-
-    public void setCalle(String Calle) {
-        this.Calle = Calle;
-    }
-
-    public String getNumeroInterior() {
-        return NumeroInterior;
-    }
-
-    public void setNumeroInterior(String NumeroInterior) {
-        this.NumeroInterior = NumeroInterior;
-    }
-
-    public String getNumeroExterior() {
-        return NumeroExterior;
-    }
-
-    public void setNumeroExterior(String NumeroExterior) {
-        this.NumeroExterior = NumeroExterior;
-    }
-
     public ColoniaJPA getColoniaJPA() {
         return ColoniaJPA;
     }

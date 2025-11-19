@@ -1,8 +1,7 @@
 package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO;
 
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.EstadoJPA;
-import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.ML.Estado;
-import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.ML.Result;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
