@@ -25,13 +25,7 @@ public class PaisJPADAOImplementation implements IPaisJPA {
         try {
             TypedQuery<PaisJPA> querypais = entityManager.createQuery("FROM PaisJPA", PaisJPA.class);
             List<PaisJPA> paisesJPA = querypais.getResultList();
-            List<Pais> paisesML = new ArrayList<>();
-            for (PaisJPA paisJPA : paisesJPA) {
-
-                Pais pais = modelMapper.map(paisJPA, Pais.class);
-                paisesML.add(pais);
-            }
-            result.objects = (List<Object>) (List<?>) paisesML;
+            result.objects = (List<Object>) (List<?>) paisesJPA;
             result.correct = true;
         } catch (Exception ex) {
             result.correct = false;

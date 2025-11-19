@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -32,38 +33,40 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
         Result result = new Result();
         try {
-            TypedQuery<UsuarioJPA> queryUsuario = entityManager.createQuery("FROM UsuarioJPA", UsuarioJPA.class);
-            List<UsuarioJPA> usuariosJPA = queryUsuario.getResultList();
-            List<Usuario> usuariosML = usuariosJPA.stream().map(usuario -> modelMapper.map(usuario, Usuario.class)).collect(Collectors.toList());
-            result.objects = (List<Object>) (List<?>) usuariosML;
+            TypedQuery<UsuarioJPA> queryUsuario
+                    = entityManager.createQuery("FROM UsuarioJPA", UsuarioJPA.class);
+            List<UsuarioJPA> usuarios = queryUsuario.getResultList();
+            result.objects = (List<Object>) (List<?>) usuarios;
             result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
+
         return result;
     }
-//------------------------------------------------GET BY ID -------------------------------------------------------------------
 
+//------------------------------------------------GET BY ID -------------------------------------------------------------------
     @Override
     public Result GetById(int idUsuario) {
         Result result = new Result();
-
         try {
             UsuarioJPA usuarioJPA = entityManager.find(UsuarioJPA.class, idUsuario);
             if (usuarioJPA != null) {
-                usuarioJPA.getRolJPA();
-                usuarioJPA.getDireccionesJPA();
+                Hibernate.initialize(usuarioJPA.getRolJPA());
+                Hibernate.initialize(usuarioJPA.getDireccionesJPA());
                 for (DireccionJPA direccion : usuarioJPA.getDireccionesJPA()) {
                     if (direccion.getColoniaJPA() != null) {
-                        direccion.getColoniaJPA().getNombre();
+                        Hibernate.initialize(direccion.getColoniaJPA());
                     }
                 }
+                result.object = usuarioJPA;
+                result.correct = true;
+            } else {
+                result.correct = false;
+                result.errorMessage = "Usuario no encontrado";
             }
-            Usuario usuarioML = modelMapper.map(usuarioJPA, Usuario.class);
-            result.object = usuarioML;
-            result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
@@ -77,23 +80,22 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     @Transactional
     public Result GetDireccionBYIdDireccion(int idDireccion) {
         Result result = new Result();
-
         try {
             DireccionJPA direccionJPA = entityManager.find(DireccionJPA.class, idDireccion);
-            if (direccionJPA != null) {
-                if (direccionJPA.getColoniaJPA() != null) {
-                    direccionJPA.getColoniaJPA().getNombre();
-                }
-                if (direccionJPA.getUsuarioJPA() != null) {
-                    direccionJPA.getUsuarioJPA().getIdUsuario();
-                }
-                Direccion direccionML = modelMapper.map(direccionJPA, Direccion.class);
-                result.object = direccionML;
-                result.correct = true;
-            } else {
+
+            if (direccionJPA == null) {
                 result.correct = false;
-                result.errorMessage = "No se encontro ninguna direccion";
+                result.errorMessage = "No se encontró ninguna dirección";
+                return result;
             }
+            if (direccionJPA.getColoniaJPA() != null) {
+                Hibernate.initialize(direccionJPA.getColoniaJPA());
+            }
+            if (direccionJPA.getUsuarioJPA() != null) {
+                Hibernate.initialize(direccionJPA.getUsuarioJPA());
+            }
+            result.object = direccionJPA;
+            result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
@@ -105,10 +107,9 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 //------------------------------------------------ADD--------------------------------------------------------------------------
     @Override
     @Transactional
-    public Result Add(Usuario usuarioML) {
+    public Result Add(UsuarioJPA usuarioJPA) {
         Result result = new Result();
         try {
-            UsuarioJPA usuarioJPA = modelMapper.map(usuarioML, UsuarioJPA.class);
             if (usuarioJPA.getDireccionesJPA() != null && !usuarioJPA.getDireccionesJPA().isEmpty()) {
                 for (DireccionJPA direccion : usuarioJPA.getDireccionesJPA()) {
                     direccion.setUsuarioJPA(usuarioJPA);
@@ -122,31 +123,32 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
-
         return result;
     }
 //    -------------------------------------------ADDDIRECCION----------------------------------------------------------
 
     @Override
     @Transactional
-    public Result AddDireccion(Direccion direccionML, int idUsuario) {
+    public Result AddDireccion(DireccionJPA direccionJPA, int idUsuario) {
         Result result = new Result();
 
         try {
-            //Mapea ml a jpa
-            DireccionJPA direccionJPA = modelMapper.map(direccionML, DireccionJPA.class);
-            //Busca y asiga idusuario
+            // Obtener usuario desde BD y asignarlo
             UsuarioJPA usuarioJPA = entityManager.find(UsuarioJPA.class, idUsuario);
             direccionJPA.setUsuarioJPA(usuarioJPA);
-            //busca y asigana colonia
-            if (direccionML.getColonia() != null && direccionML.getColonia().getIdColonia() > 0) {
-                ColoniaJPA coloniaJPA = entityManager.find(ColoniaJPA.class, direccionML.getColonia().getIdColonia());
+
+            // Si trae colonia, buscarla y asignarla
+            if (direccionJPA.getColoniaJPA() != null && direccionJPA.getColoniaJPA().getIdColonia() > 0) {
+                ColoniaJPA coloniaJPA = entityManager.find(ColoniaJPA.class, direccionJPA.getColoniaJPA().getIdColonia());
                 direccionJPA.setColoniaJPA(coloniaJPA);
             }
-            //guaradar la direccion
+
+            // Guardar
             entityManager.persist(direccionJPA);
             entityManager.flush();
+
             result.correct = true;
+
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
@@ -159,25 +161,30 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 //    -----------------------------------------UPDATE------------------------------------------------------------------
     @Override
     @Transactional
-    public Result Update(Usuario usuarioML) {
+    public Result Update(UsuarioJPA usuarioJPA) {
         Result result = new Result();
-
         try {
-            UsuarioJPA usuarioBase = entityManager.find(UsuarioJPA.class, usuarioML.getIdUsuario());
+            UsuarioJPA usuarioBase = entityManager.find(UsuarioJPA.class, usuarioJPA.getIdUsuario());
             if (usuarioBase == null) {
                 result.correct = false;
                 result.errorMessage = "Usuario no encontrado";
                 return result;
             }
-            UsuarioJPA usuarioJPA = modelMapper.map(usuarioML, UsuarioJPA.class);
-            usuarioJPA.setImagen(usuarioBase.getImagen());
-            usuarioJPA.setDireccionesJPA(usuarioBase.getDireccionesJPA());
-            if (usuarioML.getRol() != null) {
-                usuarioJPA.setRolJPA(usuarioJPA.getRolJPA());
-            } else {
-                usuarioJPA.setRolJPA(usuarioBase.getRolJPA());
+            usuarioBase.setNombre(usuarioJPA.getNombre());
+            usuarioBase.setApellidoPat(usuarioJPA.getApellidoPat());
+            usuarioBase.setApellidoMat(usuarioJPA.getApellidoMat());
+            usuarioBase.setEmail(usuarioJPA.getEmail());
+            usuarioBase.setPassword(usuarioJPA.getPassword());
+            usuarioBase.setTelefono(usuarioJPA.getTelefono());
+            usuarioBase.setFechaNacimiento(usuarioJPA.getFechaNacimiento());
+            if (usuarioJPA.getImagen() != null) {
+                usuarioBase.setImagen(usuarioJPA.getImagen());
             }
-            entityManager.merge(usuarioJPA);
+            if (usuarioJPA.getRolJPA() != null) {
+                usuarioBase.setRolJPA(usuarioJPA.getRolJPA());
+            }
+            usuarioBase.setDireccionesJPA(usuarioBase.getDireccionesJPA());
+            entityManager.merge(usuarioBase);
             entityManager.flush();
             result.correct = true;
         } catch (Exception ex) {
@@ -185,60 +192,43 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             result.errorMessage = ex.getMessage();
             result.ex = ex;
         }
-
         return result;
     }
-
 //    --------------------------UPDATEDIRECCION ------------------------------------
+
     @Override
     @Transactional
-    public Result DireccionUPDATE(Direccion direccionML, int idUsuario) {
+    public Result DireccionUPDATE(DireccionJPA direccionJPA, int idUsuario) {
         Result result = new Result();
 
         try {
-            // Buscar la dirección existente
-            DireccionJPA direccionBase = entityManager.find(DireccionJPA.class, direccionML.getIdDireccion());
-
+            DireccionJPA direccionBase = entityManager.find(DireccionJPA.class, direccionJPA.getIdDireccion());
             if (direccionBase == null) {
                 result.correct = false;
                 result.errorMessage = "Dirección no encontrada";
                 return result;
             }
-
-            // Mapear los nuevos datos del formulario
-            DireccionJPA direccionJPA = modelMapper.map(direccionML, DireccionJPA.class);
-
-            // Mantener la relación con el usuario
+            direccionBase.setCalle(direccionJPA.getCalle());
+            direccionBase.setNumeroInterior(direccionJPA.getNumeroInterior());
+            direccionBase.setNumeroExterior(direccionJPA.getNumeroExterior());
             UsuarioJPA usuarioJPA = entityManager.find(UsuarioJPA.class, idUsuario);
-            direccionJPA.setUsuarioJPA(usuarioJPA);
-
-            // Mantener el mismo idDireccion (clave primaria)
-            direccionJPA.setIdDireccion(direccionBase.getIdDireccion());
-
-            // Actualizar la colonia si fue seleccionada
-            if (direccionML.getColonia() != null && direccionML.getColonia().getIdColonia() > 0) {
-                ColoniaJPA coloniaJPA = entityManager.find(ColoniaJPA.class, direccionML.getColonia().getIdColonia());
-                direccionJPA.setColoniaJPA(coloniaJPA);
-            } else {
-                direccionJPA.setColoniaJPA(direccionBase.getColoniaJPA());
+            direccionBase.setUsuarioJPA(usuarioJPA);
+            if (direccionJPA.getColoniaJPA() != null && direccionJPA.getColoniaJPA().getIdColonia() > 0) {
+                ColoniaJPA coloniaJPA = entityManager.find(ColoniaJPA.class, direccionJPA.getColoniaJPA().getIdColonia());
+                direccionBase.setColoniaJPA(coloniaJPA);
             }
-
-            // Guardar cambios
-            entityManager.merge(direccionJPA);
+            entityManager.merge(direccionBase);
             entityManager.flush();
-
             result.correct = true;
-
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getMessage();
             result.ex = ex;
         }
-
         return result;
     }
-
 //    -------------------------------------UPDATE IMAGEN--------------------------------------------------------------
+
     @Override
     @Transactional
     public Result UpdateImagen(int idUsuario, String NuevaImgenB64) {
@@ -310,112 +300,118 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Override
     @Transactional
-    public Result AddAll(List<Usuario> usuarios) {
+    public Result AddAll(List<UsuarioJPA> usuarios) {
         Result result = new Result();
+
         try {
             int index = 0;
-            for (Usuario usuarioML : usuarios) {
-                UsuarioJPA usuarioJPA = modelMapper.map(usuarioML, UsuarioJPA.class);
-                if (usuarioML.getFechaNacimiento() == null) {
+
+            for (UsuarioJPA usuarioJPA : usuarios) {
+
+                // Validar fecha nula
+                if (usuarioJPA.getFechaNacimiento() == null) {
                     usuarioJPA.setFechaNacimiento(null);
                 }
-                if (usuarioML.getRol() != null && usuarioML.getRol().getIdRol() > 0) {
-                    RolJPA rol = entityManager.find(RolJPA.class, usuarioML.getRol().getIdRol());
+
+                // Rol → Buscarlo en BD si viene con ID
+                if (usuarioJPA.getRolJPA() != null && usuarioJPA.getRolJPA().getIdRol() > 0) {
+                    RolJPA rol = entityManager.find(RolJPA.class, usuarioJPA.getRolJPA().getIdRol());
                     usuarioJPA.setRolJPA(rol);
                 } else {
                     usuarioJPA.setRolJPA(null);
                 }
+
+                // Guardar usuario
                 entityManager.persist(usuarioJPA);
+
+                // Optimización por lotes
                 if (index % 50 == 0) {
                     entityManager.flush();
                     entityManager.clear();
                 }
+
                 index++;
                 result.correct = true;
             }
+
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
+
         return result;
     }
 //------------------------------------------BUSQUEDA DINAMICA--------------------------------------------------------------------
 
     @Override
-    public Result BusquedaDinamica(Usuario usuario) {
-        Result result = new Result();
+public Result BusquedaDinamica(UsuarioJPA usuario) {
+    Result result = new Result();
 
-        try {
-            String jpql = "SELECT u FROM UsuarioJPA u "
-                    + "LEFT JOIN FETCH u.rol r "
-                    + "LEFT JOIN FETCH u.direcciones d "
-                    + "LEFT JOIN FETCH d.colonia c "
-                    + "LEFT JOIN FETCH c.municipio m "
-                    + "LEFT JOIN FETCH m.estado e "
-                    + "LEFT JOIN FETCH e.pais p "
-                    + "WHERE 1 = 1 ";
+    try {
+        String jpql = "SELECT u FROM UsuarioJPA u "
+                + "LEFT JOIN FETCH u.rolJPA r "
+                + "LEFT JOIN FETCH u.direccionesJPA d "
+                + "LEFT JOIN FETCH d.coloniaJPA c "
+                + "LEFT JOIN FETCH c.municipioJPA m "
+                + "LEFT JOIN FETCH m.estadoJPA e "
+                + "LEFT JOIN FETCH e.paisJPA p "
+                + "WHERE 1 = 1 ";
 
-            // IF dinámico como tu procedure:
-            if (usuario.getNombreUsuario() != null && !usuario.getNombreUsuario().isEmpty()) {
-                jpql += " AND LOWER(u.nombre) LIKE LOWER(:nombre) ";
-            }
-
-            if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
-                jpql += " AND LOWER(u.apellidoPat) LIKE LOWER(:apellidoPat) ";
-            }
-
-            if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
-                jpql += " AND LOWER(u.apellidoMat) LIKE LOWER(:apellidoMat) ";
-            }
-
-            if (usuario.getRol() != null && usuario.getRol().getIdRol() != 0) {
-                jpql += " AND r.idRol = :idRol ";
-            }
-
-            jpql += " ORDER BY u.idUsuario ";
-
-            TypedQuery<UsuarioJPA> query = entityManager.createQuery(jpql, UsuarioJPA.class);
-
-            // Seteo dinámico EXACTO como tu SP
-            if (usuario.getNombreUsuario() != null && !usuario.getNombreUsuario().isEmpty()) {
-                query.setParameter("nombre", "%" + usuario.getNombreUsuario() + "%");
-            }
-
-            if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
-                query.setParameter("apellidoPat", "%" + usuario.getApellidoPat() + "%");
-            }
-
-            if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
-                query.setParameter("apellidoMat", "%" + usuario.getApellidoMat() + "%");
-            }
-
-            if (usuario.getRol() != null && usuario.getRol().getIdRol() != 0) {
-                query.setParameter("idRol", usuario.getRol().getIdRol());
-            }
-
-            List<UsuarioJPA> usuariosJPA = query.getResultList();
-
-            // Evitar duplicados por los JOIN FETCH
-            Set<UsuarioJPA> setUsuarios = new LinkedHashSet<>(usuariosJPA);
-            usuariosJPA = new ArrayList<>(setUsuarios);
-
-            // Mapear tu ML exactamente igual que antes
-            List<Usuario> usuariosML = new ArrayList<>();
-            for (UsuarioJPA usuarioJPA : usuariosJPA) {
-                Usuario u = modelMapper.map(usuarioJPA, Usuario.class);
-                usuariosML.add(u);
-            }
-
-            result.objects = (List<Object>) (List<?>) usuariosML;
-            result.correct = true;
-
-        } catch (Exception ex) {
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
+        // ---- FILTROS ----
+        if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+            jpql += " AND LOWER(u.nombre) LIKE LOWER(:nombre) ";
         }
 
-        return result;
+        if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
+            jpql += " AND LOWER(u.apellidoPaterno) LIKE LOWER(:apellidoPat) ";
+        }
+
+        if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
+            jpql += " AND LOWER(u.apellidoMaterno) LIKE LOWER(:apellidoMat) ";
+        }
+
+        if (usuario.getRolJPA() != null && usuario.getRolJPA().getIdRol() != 0) {
+            jpql += " AND r.idRol = :idRol ";
+        }
+
+        jpql += " ORDER BY u.idUsuario ";
+
+        TypedQuery<UsuarioJPA> query = entityManager.createQuery(jpql, UsuarioJPA.class);
+
+        // ---- SETEO DE PARÁMETROS ----
+        if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+            query.setParameter("nombre", "%" + usuario.getNombre() + "%");
+        }
+
+        if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
+            query.setParameter("apellidoPat", "%" + usuario.getApellidoPat() + "%");
+        }
+
+        if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
+            query.setParameter("apellidoMat", "%" + usuario.getApellidoMat() + "%");
+        }
+
+        if (usuario.getRolJPA() != null && usuario.getRolJPA().getIdRol() != 0) {
+            query.setParameter("idRol", usuario.getRolJPA().getIdRol());
+        }
+
+        List<UsuarioJPA> usuariosJPA = query.getResultList();
+
+        // Evita duplicados por JOIN FETCH
+        Set<UsuarioJPA> setUsuarios = new LinkedHashSet<>(usuariosJPA);
+        usuariosJPA = new ArrayList<>(setUsuarios);
+
+        // Ahora asignamos directamente las entidades JPA
+        result.objects = (List<Object>)(List<?>) usuariosJPA;
+        result.correct = true;
+
+    } catch (Exception ex) {
+        result.correct = false;
+        result.errorMessage = ex.getLocalizedMessage();
+        result.ex = ex;
     }
+
+    return result;
+}
 }

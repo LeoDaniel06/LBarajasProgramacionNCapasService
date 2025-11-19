@@ -28,7 +28,31 @@ public class ColoniaJPA {
     @JoinColumn(name="idmunicipio")
     public MunicipioJPA MunicipioJPA;
 
+    public int getIdColonia() {
+        return IdColonia;
+    }
 
+    public void setIdColonia(int IdColonia) {
+        this.IdColonia = IdColonia;
+    }
+
+    public String getNombre() {
+        return Nombre;
+    }
+
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
+    }
+
+    public String getCodigoPostal() {
+        return CodigoPostal;
+    }
+
+    public void setCodigoPostal(String CodigoPostal) {
+        this.CodigoPostal = CodigoPostal;
+    }
+
+    
     public MunicipioJPA getMunicipioJPA() {
         return MunicipioJPA;
     }

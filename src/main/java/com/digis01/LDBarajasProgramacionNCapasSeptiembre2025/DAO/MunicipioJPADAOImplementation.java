@@ -23,15 +23,13 @@ public class MunicipioJPADAOImplementation implements IMunicipioJPA {
         Result result = new Result();
         try {
             TypedQuery<MunicipioJPA> queryMunicipios = entityManager.createQuery(
-                    "FROM MunicipioJPA municipio WHERE municipio.EstadoJPA.IdEstado = :idEstado", MunicipioJPA.class);
+                    "FROM MunicipioJPA municipio WHERE municipio.EstadoJPA.IdEstado = :idEstado",
+                    MunicipioJPA.class
+            );
             queryMunicipios.setParameter("idEstado", IdEstado);
-            List<MunicipioJPA> municipiosJPA = queryMunicipios.getResultList();
-            List<Municipio> municipiosML = new ArrayList<>();
-            for (MunicipioJPA municipioJPA : municipiosJPA) {
-                Municipio municipio = modelMapper.map(municipioJPA, Municipio.class);
-                municipiosML.add(municipio);
-            }
-            result.objects = (List<Object>) (List<?>) municipiosML;
+            List<MunicipioJPA> municipios = queryMunicipios.getResultList();
+            // Regresamos directamente las entidades JPA
+            result.objects = (List<Object>) (List<?>) municipios;
             result.correct = true;
         } catch (Exception ex) {
             result.correct = false;

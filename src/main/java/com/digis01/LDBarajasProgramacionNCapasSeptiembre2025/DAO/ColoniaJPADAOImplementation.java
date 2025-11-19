@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ColoniaJPADAOImplementation implements IColoniaDAO {
+public class ColoniaJPADAOImplementation implements IColoniaJPA {
 
     @Autowired
     private EntityManager entityManager;
@@ -22,23 +22,27 @@ public class ColoniaJPADAOImplementation implements IColoniaDAO {
     @Override
     public Result GetByIdMunicipio(int IdMunicipio) {
         Result result = new Result();
+
         try {
-            TypedQuery<ColoniaJPA> querycolonias = entityManager.createQuery(
-                    "FROM ColoniaJPA colonia WHERE colonia.MunicipioJPA.IdMunicipio = :idMunicipio", ColoniaJPA.class);
-            querycolonias.setParameter("idMunicipio", IdMunicipio);
-            List<ColoniaJPA> coloniasJPA = querycolonias.getResultList();
-            List<Colonia> coloniasML = new ArrayList<>();
-            for (ColoniaJPA coloniaJPA : coloniasJPA) {
-                Colonia colonia = modelMapper.map(coloniaJPA, Colonia.class);
-                coloniasML.add(colonia);
-            }
-            result.objects = (List<Object>) (List<?>) coloniasML;
+            TypedQuery<ColoniaJPA> queryColonias = entityManager.createQuery(
+                    "FROM ColoniaJPA colonia WHERE colonia.MunicipioJPA.IdMunicipio = :idMunicipio",
+                    ColoniaJPA.class
+            );
+
+            queryColonias.setParameter("idMunicipio", IdMunicipio);
+
+            List<ColoniaJPA> colonias = queryColonias.getResultList();
+
+            // Ahora devolvemos directamente la lista JPA
+            result.objects = (List<Object>) (List<?>) colonias;
             result.correct = true;
+
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
+
         return result;
     }
 }

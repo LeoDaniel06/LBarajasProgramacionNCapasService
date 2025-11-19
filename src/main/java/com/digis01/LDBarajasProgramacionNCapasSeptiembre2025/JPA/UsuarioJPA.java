@@ -68,109 +68,109 @@ public class UsuarioJPA {
     @OneToMany(mappedBy = "UsuarioJPA",cascade = CascadeType.ALL, orphanRemoval = true)
     public List<DireccionJPA> DireccionesJPA = new ArrayList();
 
-//    public int getIdUsuario() {
-//        return idUsuario;
-//    }
-//
-//    public void setIdUsuario(int idUsuario) {
-//        this.idUsuario = idUsuario;
-//    }
-//
-//    public String getUserName() {
-//        return UserName;
-//    }
-//
-//    public void setUserName(String UserName) {
-//        this.UserName = UserName;
-//    }
-//
-//    public String getNombre() {
-//        return Nombre;
-//    }
-//
-//    public void setNombre(String Nombre) {
-//        this.Nombre = Nombre;
-//    }
-//
-//    public String getApellidoPat() {
-//        return ApellidoPat;
-//    }
-//
-//    public void setApellidoPat(String ApellidoPat) {
-//        this.ApellidoPat = ApellidoPat;
-//    }
-//
-//    public String getApellidoMat() {
-//        return ApellidoMat;
-//    }
-//
-//    public void setApellidoMat(String ApellidoMat) {
-//        this.ApellidoMat = ApellidoMat;
-//    }
-//
-//    public String getEmail() {
-//        return Email;
-//    }
-//
-//    public void setEmail(String Email) {
-//        this.Email = Email;
-//    }
-//
-//    public String getPassword() {
-//        return Password;
-//    }
-//
-//    public void setPassword(String Password) {
-//        this.Password = Password;
-//    }
-//
-//    public Date getFechaNacimiento() {
-//        return FechaNacimiento;
-//    }
-//
-//    public void setFechaNacimiento(Date FechaNacimiento) {
-//        this.FechaNacimiento = FechaNacimiento;
-//    }
-//
-//    public String getSexo() {
-//        return Sexo;
-//    }
-//
-//    public void setSexo(String Sexo) {
-//        this.Sexo = Sexo;
-//    }
-//
-//    public String getTelefono() {
-//        return Telefono;
-//    }
-//
-//    public void setTelefono(String Telefono) {
-//        this.Telefono = Telefono;
-//    }
-//
-//    public String getCelular() {
-//        return Celular;
-//    }
-//
-//    public void setCelular(String Celular) {
-//        this.Celular = Celular;
-//    }
-//
-//    public String getCurp() {
-//        return Curp;
-//    }
-//
-//    public void setCurp(String Curp) {
-//        this.Curp = Curp;
-//    }
-//
-//    public String getImagen() {
-//        return Imagen;
-//    }
-//
-//    public void setImagen(String Imagen) {
-//        this.Imagen = Imagen;
-//    }
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public String getUserName() {
+        return UserName;
+    }
+
+    public void setUserName(String UserName) {
+        this.UserName = UserName;
+    }
+
+    public String getNombre() {
+        return Nombre;
+    }
+
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
+    }
+
+    public String getApellidoPat() {
+        return ApellidoPat;
+    }
+
+    public void setApellidoPat(String ApellidoPat) {
+        this.ApellidoPat = ApellidoPat;
+    }
+
+    public String getApellidoMat() {
+        return ApellidoMat;
+    }
+
+    public void setApellidoMat(String ApellidoMat) {
+        this.ApellidoMat = ApellidoMat;
+    }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String Email) {
+        this.Email = Email;
+    }
+
+    public String getPassword() {
+        return Password;
+    }
+
+    public void setPassword(String Password) {
+        this.Password = Password;
+    }
+
+    public Date getFechaNacimiento() {
+        return FechaNacimiento;
+    }
+
+    public void setFechaNacimiento(Date FechaNacimiento) {
+        this.FechaNacimiento = FechaNacimiento;
+    }
+
+    public String getSexo() {
+        return Sexo;
+    }
+
+    public void setSexo(String Sexo) {
+        this.Sexo = Sexo;
+    }
+
+    public String getTelefono() {
+        return Telefono;
+    }
+
+    public void setTelefono(String Telefono) {
+        this.Telefono = Telefono;
+    }
+
+    public String getCelular() {
+        return Celular;
+    }
+
+    public void setCelular(String Celular) {
+        this.Celular = Celular;
+    }
+
+    public String getCurp() {
+        return Curp;
+    }
+
+    public void setCurp(String Curp) {
+        this.Curp = Curp;
+    }
+
+    public String getImagen() {
+        return Imagen;
+    }
+
+    public void setImagen(String Imagen) {
+        this.Imagen = Imagen;
+    }
 
     public RolJPA getRolJPA() {
         return RolJPA;
