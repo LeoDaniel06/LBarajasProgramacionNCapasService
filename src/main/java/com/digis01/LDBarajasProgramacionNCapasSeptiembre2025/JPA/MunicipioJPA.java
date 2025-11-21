@@ -1,5 +1,7 @@
 package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,16 +23,25 @@ public class MunicipioJPA {
     @Column(name="nombre")
     private String Nombre;
     
+    
     @ManyToOne
     @JoinColumn(name="idestado")
+//    @JsonIgnoreProperties({"paisJPA"})
     public EstadoJPA EstadoJPA;
 
-    public EstadoJPA getEstadoJPA() {
-        return EstadoJPA;
+    public int getIdMunicipio() {
+        return IdMunicipio;
     }
 
-    public void setEstadoJPA(EstadoJPA EstadoJPA) {
-        this.EstadoJPA = EstadoJPA;
+    public void setIdMunicipio(int IdMunicipio) {
+        this.IdMunicipio = IdMunicipio;
     }
-    
+
+    public String getNombre() {
+        return Nombre;
+    }
+
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
+    }
 }

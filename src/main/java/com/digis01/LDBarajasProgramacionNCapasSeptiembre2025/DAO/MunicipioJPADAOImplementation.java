@@ -15,8 +15,6 @@ public class MunicipioJPADAOImplementation implements IMunicipioJPA {
 
     @Autowired
     private EntityManager entityManager;
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public Result GetByIdEstado(int IdEstado) {

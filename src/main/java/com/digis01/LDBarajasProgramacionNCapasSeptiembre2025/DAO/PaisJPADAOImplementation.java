@@ -16,9 +16,6 @@ public class PaisJPADAOImplementation implements IPaisJPA {
     @Autowired
     private EntityManager entityManager;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     @Override
     public Result GETALL() {
         Result result = new Result();

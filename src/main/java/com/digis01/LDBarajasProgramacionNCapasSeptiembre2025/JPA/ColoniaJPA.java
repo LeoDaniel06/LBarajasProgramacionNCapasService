@@ -1,5 +1,6 @@
 package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -51,14 +52,4 @@ public class ColoniaJPA {
     public void setCodigoPostal(String CodigoPostal) {
         this.CodigoPostal = CodigoPostal;
     }
-
-    
-    public MunicipioJPA getMunicipioJPA() {
-        return MunicipioJPA;
-    }
-
-    public void setMunicipioJPA(MunicipioJPA MunicipioJPA) {
-        this.MunicipioJPA = MunicipioJPA;
-    } 
-    
 }

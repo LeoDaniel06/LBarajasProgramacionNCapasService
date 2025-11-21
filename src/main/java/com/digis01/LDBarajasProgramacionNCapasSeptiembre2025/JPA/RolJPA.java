@@ -17,7 +17,7 @@ public class RolJPA {
     private Integer IdRol;
     
     @Column(name = "nombre")
-    private String Nombre;
+    private String Nombre;    
 
     public Integer getIdRol() {
         return IdRol;
@@ -34,6 +34,4 @@ public class RolJPA {
     public void setNombre(String Nombre) {
         this.Nombre = Nombre;
     }
-    
-    
 }

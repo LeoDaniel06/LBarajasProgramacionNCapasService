@@ -15,24 +15,17 @@ public class EstadoJPADAOImplementation implements IEstadoJPA {
 
     @Autowired
     private EntityManager entityManager;
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public Result GetByIdPais(int IdPais) {
         Result result = new Result();
-
         try {
             TypedQuery<EstadoJPA> queryEstados = entityManager.createQuery(
                     "FROM EstadoJPA estado WHERE estado.PaisJPA.IdPais = :idPais",
                     EstadoJPA.class
             );
-
             queryEstados.setParameter("idPais", IdPais);
-
             List<EstadoJPA> estados = queryEstados.getResultList();
-
-            // Ahora regresamos los objetos JPA directamente
             result.objects = (List<Object>) (List<?>) estados;
             result.correct = true;
 
@@ -41,7 +34,6 @@ public class EstadoJPADAOImplementation implements IEstadoJPA {
             result.errorMessage = ex.getLocalizedMessage();
             result.ex = ex;
         }
-
         return result;
     }
 }

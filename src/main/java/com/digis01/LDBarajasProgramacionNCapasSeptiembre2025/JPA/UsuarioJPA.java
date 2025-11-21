@@ -67,6 +67,9 @@ public class UsuarioJPA {
     
     @OneToMany(mappedBy = "UsuarioJPA",cascade = CascadeType.ALL, orphanRemoval = true)
     public List<DireccionJPA> DireccionesJPA = new ArrayList();
+    
+    public UsuarioJPA(){
+    }
 
     public int getIdUsuario() {
         return idUsuario;
@@ -171,22 +174,4 @@ public class UsuarioJPA {
     public void setImagen(String Imagen) {
         this.Imagen = Imagen;
     }
-
-    public RolJPA getRolJPA() {
-        return RolJPA;
-    }
-
-    public void setRolJPA(RolJPA RolJPA) {
-        this.RolJPA = RolJPA;
-    }
-
-    public List<DireccionJPA> getDireccionesJPA() {
-        return DireccionesJPA;
-    }
-
-    public void setDireccionesJPA(List<DireccionJPA> DireccionesJPA) {
-        this.DireccionesJPA = DireccionesJPA;
-    }
-
-    
 }

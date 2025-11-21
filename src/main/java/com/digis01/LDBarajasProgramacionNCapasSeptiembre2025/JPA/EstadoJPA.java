@@ -1,5 +1,6 @@
 package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,11 +26,19 @@ public class EstadoJPA {
     @JoinColumn(name="idpais")
     public PaisJPA PaisJPA;
 
-    public PaisJPA getPaisJPA() {
-        return PaisJPA;
+    public int getIdEstado() {
+        return IdEstado;
     }
 
-    public void setPaisJPA(PaisJPA PaisJPA) {
-        this.PaisJPA = PaisJPA;
+    public void setIdEstado(int IdEstado) {
+        this.IdEstado = IdEstado;
+    }
+
+    public String getNombre() {
+        return Nombre;
+    }
+
+    public void setNombre(String Nombre) {
+        this.Nombre = Nombre;
     }
 }

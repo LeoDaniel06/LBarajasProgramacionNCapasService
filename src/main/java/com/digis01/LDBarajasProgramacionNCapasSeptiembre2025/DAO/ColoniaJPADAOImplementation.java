@@ -16,8 +16,6 @@ public class ColoniaJPADAOImplementation implements IColoniaJPA {
     @Autowired
     private EntityManager entityManager;
 
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public Result GetByIdMunicipio(int IdMunicipio) {
@@ -43,6 +41,22 @@ public class ColoniaJPADAOImplementation implements IColoniaJPA {
             result.ex = ex;
         }
 
+        return result;
+    }
+    
+    @Override
+    public Result GETALL() {
+        Result result = new Result();
+        try {
+            TypedQuery<ColoniaJPA> queryrol = entityManager.createQuery("FROM ColoniaJPA", ColoniaJPA.class);
+            List<ColoniaJPA> coloniasJPA = queryrol.getResultList();
+            result.objects = (List<Object>) (List<?>) coloniasJPA;
+            result.correct = true;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
         return result;
     }
 }

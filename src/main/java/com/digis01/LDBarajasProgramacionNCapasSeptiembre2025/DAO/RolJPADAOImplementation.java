@@ -16,9 +16,6 @@ public class RolJPADAOImplementation implements IRolJPA {
     @Autowired
     private EntityManager entityManager;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     @Override
     public Result GETALL() {
         Result result = new Result();

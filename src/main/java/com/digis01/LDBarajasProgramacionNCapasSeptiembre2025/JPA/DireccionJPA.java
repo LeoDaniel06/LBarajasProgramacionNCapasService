@@ -1,5 +1,8 @@
 package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
@@ -34,8 +37,10 @@ public class DireccionJPA {
     @JoinColumn(name="idcolonia")
     public ColoniaJPA ColoniaJPA;
     
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="idusuario")
+    @JsonIgnore
     public UsuarioJPA UsuarioJPA;
 
     public Integer getIdDireccion() {
@@ -68,24 +73,5 @@ public class DireccionJPA {
 
     public void setNumeroExterior(String NumeroExterior) {
         this.NumeroExterior = NumeroExterior;
-    }
-
-    
-    public ColoniaJPA getColoniaJPA() {
-        return ColoniaJPA;
-    }
-
-    public void setColoniaJPA(ColoniaJPA ColoniaJPA) {
-        this.ColoniaJPA = ColoniaJPA;
-    }
-
-    public UsuarioJPA getUsuarioJPA() {
-        return UsuarioJPA;
-    }
-
-    public void setUsuarioJPA(UsuarioJPA UsuarioJPA) {
-        this.UsuarioJPA = UsuarioJPA;
-    }
-    
-    
+    }   
 }
