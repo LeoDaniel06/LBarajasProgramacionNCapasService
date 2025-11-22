@@ -10,6 +10,7 @@ import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.UsuarioJPA;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -110,29 +111,29 @@ public class DemoRestController {
 //        return ResponseEntity.ok(total);
     }
 //-------------------------------GETALLUSSUARIOS-----------------------------------------------
-    @GetMapping
-    public ResponseEntity<Result> GetallUsuarios() {
-        Result result = new Result();
+
+    @GetMapping()
+    public ResponseEntity<Result> getAllUsuarios() {
+        Result result;
         try {
             result = usuarioJPADAOImplementation.GetAll();
+
             if (result.objects == null || result.objects.isEmpty()) {
-                result.correct = false;
-                result.errorMessage = "No se encontraron usuarios";
-                result.Status = 404;
-            } else {
-//                result.objects = 
-                result.correct = true;
-                result.Status = 200;
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
             }
+
+            return ResponseEntity.ok(result);
+
         } catch (Exception ex) {
+            result = new Result();
             result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
+            result.errorMessage = ex.getMessage();
             result.ex = ex;
-            result.Status = 500;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
         }
-        return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETALLROLES-----------------------------------------------------------
+
     @GetMapping("/roles")
     public ResponseEntity<Result> GetallRoles() {
         Result result = new Result();
@@ -156,6 +157,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETALLPAIS-----------------------------------------------------------------------
+
     @GetMapping("/paises")
     public ResponseEntity<Result> GetallPais() {
         Result result = new Result();
@@ -179,6 +181,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETESTADOBYPAIS---------------------------------------------------------------
+
     @GetMapping("/estados/{idPais}")
     public ResponseEntity<Result> GetCEstadobyid(@PathVariable("idPais") int idPais) {
         Result result = new Result();
@@ -201,6 +204,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETCOLONIASBYMUNICIPIO--------------------------------------------------------
+
     @GetMapping("/colonias/{idMunicipio}")
     public ResponseEntity<Result> GetColoniabyid(@PathVariable("idMunicipio") int idMunicipio) {
         Result result = new Result();
@@ -223,6 +227,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETBYID----------------------------------------------------------------
+
     @GetMapping("/detail/{idUsuario}")
     public ResponseEntity<Result> GetUsuarioById(@PathVariable("idUsuario") int idUsuario) {
         Result result = new Result();
@@ -268,6 +273,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //---------------------------------ADD--------------------------------------------------
+
     @PostMapping("/add")
     public ResponseEntity<Result> addUsuario(@RequestBody UsuarioJPA usuarioJPA) {
         Result result = new Result();
@@ -287,8 +293,9 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //---------------------------------------------ADD DIRECCION------------------------------------------
+
     @PostMapping("/add-direccion/{idUsuario}")
-    public ResponseEntity<Result> addDireccion(@PathVariable("idUsuario") int idUsuario,@RequestBody DireccionJPA direccionJPA) {
+    public ResponseEntity<Result> addDireccion(@PathVariable("idUsuario") int idUsuario, @RequestBody DireccionJPA direccionJPA) {
         Result result = new Result();
         try {
             result = usuarioJPADAOImplementation.AddDireccion(direccionJPA, idUsuario);
@@ -306,8 +313,9 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //---------------------------------------------UPDATEIMAGEN-------------------------------------------
+
     @PatchMapping("/update-imagen/{idUsuario}")
-    public ResponseEntity<Result> updateImagen(@PathVariable("idUsuario") int idUsuario,@RequestBody UsuarioJPA usuarioJPA) {
+    public ResponseEntity<Result> updateImagen(@PathVariable("idUsuario") int idUsuario, @RequestBody UsuarioJPA usuarioJPA) {
         Result result = new Result();
         try {
             result = usuarioJPADAOImplementation.UpdateImagen(idUsuario, usuarioJPA.getImagen());
@@ -325,6 +333,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //---------------------------------------------UPDATE USUARIO-------------------------------------------
+
     @PutMapping("/update")
     public ResponseEntity<Result> updateUsuario(@RequestBody UsuarioJPA usuarioJPA) {
         Result result = new Result();

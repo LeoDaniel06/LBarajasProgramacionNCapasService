@@ -54,6 +54,9 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                 for (DireccionJPA direccion : usuarioJPA.DireccionesJPA) {
                     if (direccion.ColoniaJPA != null) {
                         Hibernate.initialize(direccion.ColoniaJPA);
+                        Hibernate.initialize(direccion.ColoniaJPA.MunicipioJPA);
+                        Hibernate.initialize(direccion.ColoniaJPA.MunicipioJPA.EstadoJPA);
+                        Hibernate.initialize(direccion.ColoniaJPA.MunicipioJPA.EstadoJPA.PaisJPA);
                     }
                 }
                 result.object = usuarioJPA;
@@ -219,6 +222,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 //        return result;
 //    }
 //    -------------------------------------UPDATE IMAGEN--------------------------------------------------------------
+
     @Override
     @Transactional
     public Result UpdateImagen(int idUsuario, String NuevaImagenB64) {
