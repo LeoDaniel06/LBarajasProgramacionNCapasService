@@ -12,7 +12,7 @@ public interface IUsuarioJPA{
     Result GetAll();
     Result Add(UsuarioJPA usuarioJPA);
     Result Update(UsuarioJPA usuarioJPA);
-//    Result DireccionUPDATE(DireccionJPA direccionJPA, int idUsuario);
+    Result DireccionUPDATE(DireccionJPA direccionJPA, int idUsuario);
     Result AddDireccion(DireccionJPA direccionJPA, int idUsuario);
     Result DeleteUsuario(int idUsuario);
     Result DeleteDireccion(int idDireccion);

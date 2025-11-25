@@ -2,18 +2,22 @@ package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.RESTCONTROLLER;
 
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.ColoniaJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.EstadoJPADAOImplementation;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.MunicipioJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.PaisJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.RolJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.UsuarioJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.DireccionJPA;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.MunicipioJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.UsuarioJPA;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +41,8 @@ public class DemoRestController {
     private PaisJPADAOImplementation paisJPADAOImplementation;
     @Autowired
     private EstadoJPADAOImplementation estadoJPADAOImplementation;
+    @Autowired
+    private MunicipioJPADAOImplementation municipioJPADAOImplementation;
 
     @GetMapping("saludo")
     public String Saludo(@RequestParam("Nombre") String nombre) {
@@ -181,7 +187,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETESTADOBYPAIS---------------------------------------------------------------
-
+    @CrossOrigin
     @GetMapping("/estados/{idPais}")
     public ResponseEntity<Result> GetCEstadobyid(@PathVariable("idPais") int idPais) {
         Result result = new Result();
@@ -203,8 +209,31 @@ public class DemoRestController {
         }
         return ResponseEntity.status(result.Status).body(result);
     }
+//--------------------------------------GETMUNICIPIOSBYESTADO-------------------------------------
+    @CrossOrigin
+    @GetMapping("/municipios/{idEstado}")
+    public ResponseEntity<Result> GetMunicipiobyidestado(@PathVariable("idEstado") int idEstado) {
+        Result result = new Result();
+        try {
+            result = municipioJPADAOImplementation.GetByIdEstado(idEstado);
+            if (result.objects == null) {
+                result.correct = false;
+                result.errorMessage = "No se encontró el usuario";
+                result.Status = 404;
+            } else {
+                result.correct = true;
+                result.Status = 200;
+            }
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+            result.Status = 500;
+        }
+        return ResponseEntity.status(result.Status).body(result);
+    }
 //----------------------------------------GETCOLONIASBYMUNICIPIO--------------------------------------------------------
-
+    @CrossOrigin
     @GetMapping("/colonias/{idMunicipio}")
     public ResponseEntity<Result> GetColoniabyid(@PathVariable("idMunicipio") int idMunicipio) {
         Result result = new Result();
@@ -250,7 +279,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //-------------------------------------DIRECCIONGETBYIDDIRECCION------------------------
-
+    @CrossOrigin
     @GetMapping("/direccion/{idDireccion}")
     public ResponseEntity<Result> GetDIRECCIONByIdDIRECCION(@PathVariable("idDireccion") int idDireccion) {
         Result result = new Result();
@@ -258,7 +287,7 @@ public class DemoRestController {
             result = usuarioJPADAOImplementation.GetDireccionBYIdDireccion(idDireccion);
             if (result.object == null) {
                 result.correct = false;
-                result.errorMessage = "No se encontró el usuario";
+                result.errorMessage = "No se encontró la direccion";
                 result.Status = 404;
             } else {
                 result.correct = true;
@@ -351,6 +380,26 @@ public class DemoRestController {
             result.Status = 500;
         }
         return ResponseEntity.status(result.Status).body(result);
+    }
+//---------------------------------------------UPDATE DIRECCION-------------------------------------------
+    @PutMapping("/update-direccion/{idUsuario}")
+    public ResponseEntity<Result> UpddateDireccion(@PathVariable int idUsuario,
+            @RequestBody DireccionJPA direccionJPA){
+        Result result = new Result();
+        try {
+            result= usuarioJPADAOImplementation.DireccionUPDATE(direccionJPA, idUsuario);
+            if(result.correct){
+                result.Status = 400;
+                return ResponseEntity.status(400).body(result);
+            }
+            result.Status = 200;
+            return ResponseEntity.ok(result);
+        } catch (Exception ex) {
+            result.correct = true;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+            return ResponseEntity.status(500).body(result);
+        }
     }
 //---------------------------------------------DELETEUSUARIO---------------------------------------------
 
