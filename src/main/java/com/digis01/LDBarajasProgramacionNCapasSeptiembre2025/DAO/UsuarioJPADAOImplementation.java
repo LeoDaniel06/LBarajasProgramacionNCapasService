@@ -75,46 +75,45 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
 //------------------------------------------------DIRECCION GETBYID DIRECCION--------------------------------------------------
     @Override
-@Transactional
-public Result GetDireccionBYIdDireccion(int idDireccion) {
-    Result result = new Result();
-    try {
-        DireccionJPA direccionJPA = entityManager.find(DireccionJPA.class, idDireccion);
-        if (direccionJPA == null) {
-            result.correct = false;
-            result.errorMessage = "No se encontró ninguna dirección";
-            return result;
-        }
-        if (direccionJPA.ColoniaJPA != null) {
-            Hibernate.initialize(direccionJPA.ColoniaJPA);
+    @Transactional
+    public Result GetDireccionBYIdDireccion(int idDireccion) {
+        Result result = new Result();
+        try {
+            DireccionJPA direccionJPA = entityManager.find(DireccionJPA.class, idDireccion);
+            if (direccionJPA == null) {
+                result.correct = false;
+                result.errorMessage = "No se encontró ninguna dirección";
+                return result;
+            }
+            if (direccionJPA.ColoniaJPA != null) {
+                Hibernate.initialize(direccionJPA.ColoniaJPA);
 
-            if (direccionJPA.ColoniaJPA.MunicipioJPA != null) {
-                Hibernate.initialize(direccionJPA.ColoniaJPA.MunicipioJPA);
+                if (direccionJPA.ColoniaJPA.MunicipioJPA != null) {
+                    Hibernate.initialize(direccionJPA.ColoniaJPA.MunicipioJPA);
 
-                if (direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA != null) {
-                    Hibernate.initialize(direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA);
+                    if (direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA != null) {
+                        Hibernate.initialize(direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA);
 
-                    if (direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA.PaisJPA != null) {
-                        Hibernate.initialize(direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA.PaisJPA);
+                        if (direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA.PaisJPA != null) {
+                            Hibernate.initialize(direccionJPA.ColoniaJPA.MunicipioJPA.EstadoJPA.PaisJPA);
+                        }
                     }
                 }
             }
-        }
-        if (direccionJPA.UsuarioJPA != null) {
-            Hibernate.initialize(direccionJPA.UsuarioJPA);
-        }
+            if (direccionJPA.UsuarioJPA != null) {
+                Hibernate.initialize(direccionJPA.UsuarioJPA);
+            }
 
-        result.object = direccionJPA;
-        result.correct = true;
+            result.object = direccionJPA;
+            result.correct = true;
 
-    } catch (Exception ex) {
-        result.correct = false;
-        result.errorMessage = ex.getLocalizedMessage();
-        result.ex = ex;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
     }
-    return result;
-}
-
 
 //------------------------------------------------ADD--------------------------------------------------------------------------
     @Override
@@ -205,6 +204,7 @@ public Result GetDireccionBYIdDireccion(int idDireccion) {
     }
 //    --------------------------UPDATEDIRECCION ------------------------------------
 //
+
     @Override
     @Transactional
     public Result DireccionUPDATE(DireccionJPA direccionJPA, int idUsuario) {
@@ -311,34 +311,27 @@ public Result GetDireccionBYIdDireccion(int idDireccion) {
 //    @Transactional
 //    public Result AddAll(List<UsuarioJPA> usuarios) {
 //        Result result = new Result();
-//
 //        try {
 //            int index = 0;
-//
 //            for (UsuarioJPA usuarioJPA : usuarios) {
-//
 //                // Validar fecha nula
 //                if (usuarioJPA.getFechaNacimiento() == null) {
 //                    usuarioJPA.setFechaNacimiento(null);
 //                }
-//
 //                // Rol → Buscarlo en BD si viene con ID
-//                if (usuarioJPA.getRolJPA() != null && usuarioJPA.getRolJPA().getIdRol() > 0) {
-//                    RolJPA rol = entityManager.find(RolJPA.class, usuarioJPA.getRolJPA().getIdRol());
+//                if (usuarioJPA.RolJPA != null && usuarioJPA.RolJPA.getIdRol() > 0) {
+//                    RolJPA rol = entityManager.find(RolJPA.class, usuarioJPA.RolJPA.getIdRol());
 //                    usuarioJPA.setRolJPA(rol);
 //                } else {
 //                    usuarioJPA.setRolJPA(null);
 //                }
-//
 //                // Guardar usuario
 //                entityManager.persist(usuarioJPA);
-//
 //                // Optimización por lotes
 //                if (index % 50 == 0) {
 //                    entityManager.flush();
 //                    entityManager.clear();
 //                }
-//
 //                index++;
 //                result.correct = true;
 //            }
@@ -352,75 +345,82 @@ public Result GetDireccionBYIdDireccion(int idDireccion) {
 //        return result;
 //    }
 ////------------------------------------------BUSQUEDA DINAMICA--------------------------------------------------------------------
-//
-//    @Override
-//    public Result BusquedaDinamica(UsuarioJPA usuario) {
-//        Result result = new Result();
-//        
-//        try {
-//            String jpql = "SELECT u FROM UsuarioJPA u "
-//                    + "LEFT JOIN FETCH u.rolJPA r "
-//                    + "LEFT JOIN FETCH u.direccionesJPA d "
-//                    + "LEFT JOIN FETCH d.coloniaJPA c "
-//                    + "LEFT JOIN FETCH c.municipioJPA m "
-//                    + "LEFT JOIN FETCH m.estadoJPA e "
-//                    + "LEFT JOIN FETCH e.paisJPA p "
-//                    + "WHERE 1 = 1 ";
-//
-//            // ---- FILTROS ----
-//            if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
-//                jpql += " AND LOWER(u.nombre) LIKE LOWER(:nombre) ";
-//            }
-//
-//            if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
-//                jpql += " AND LOWER(u.apellidoPaterno) LIKE LOWER(:apellidoPat) ";
-//            }
-//
-//            if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
-//                jpql += " AND LOWER(u.apellidoMaterno) LIKE LOWER(:apellidoMat) ";
-//            }
-//
-//            if (usuario.getRolJPA() != null && usuario.getRolJPA().getIdRol() != 0) {
-//                jpql += " AND r.idRol = :idRol ";
-//            }
-//
-//            jpql += " ORDER BY u.idUsuario ";
-//
-//            TypedQuery<UsuarioJPA> query = entityManager.createQuery(jpql, UsuarioJPA.class);
-//
-//            // ---- SETEO DE PARÁMETROS ----
-//            if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
-//                query.setParameter("nombre", "%" + usuario.getNombre() + "%");
-//            }
-//
-//            if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
-//                query.setParameter("apellidoPat", "%" + usuario.getApellidoPat() + "%");
-//            }
-//
-//            if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
-//                query.setParameter("apellidoMat", "%" + usuario.getApellidoMat() + "%");
-//            }
-//
-//            if (usuario.getRolJPA() != null && usuario.getRolJPA().getIdRol() != 0) {
-//                query.setParameter("idRol", usuario.getRolJPA().getIdRol());
-//            }
-//
-//            List<UsuarioJPA> usuariosJPA = query.getResultList();
-//
-//            // Evita duplicados por JOIN FETCH
-//            Set<UsuarioJPA> setUsuarios = new LinkedHashSet<>(usuariosJPA);
-//            usuariosJPA = new ArrayList<>(setUsuarios);
-//
-//            // Ahora asignamos directamente las entidades JPA
-//            result.objects = (List<Object>) (List<?>) usuariosJPA;
-//            result.correct = true;
-//
-//        } catch (Exception ex) {
-//            result.correct = false;
-//            result.errorMessage = ex.getLocalizedMessage();
-//            result.ex = ex;
-//        }
-//
-//        return result;
-//    }
+
+    @Override
+    public Result BusquedaDinamica(UsuarioJPA usuario) {
+        Result result = new Result();
+        try {
+            String jpql = "SELECT u FROM UsuarioJPA u "
+                    + "LEFT JOIN FETCH u.RolJPA r "
+                    + "LEFT JOIN FETCH u.DireccionesJPA d "
+                    + "LEFT JOIN FETCH d.ColoniaJPA c "
+                    + "LEFT JOIN FETCH c.MunicipioJPA m "
+                    + "LEFT JOIN FETCH m.EstadoJPA e "
+                    + "LEFT JOIN FETCH e.PaisJPA p "
+                    + "WHERE 1 = 1 ";
+            if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+                jpql += " AND LOWER(u.Nombre) LIKE LOWER(:nombre) ";
+            }
+            if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
+                jpql += " AND LOWER(u.ApellidoPat) LIKE LOWER(:apellidoPat) ";
+            }
+            if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
+                jpql += " AND LOWER(u.ApellidoMat) LIKE LOWER(:apellidoMat) ";
+            }
+            if (usuario.RolJPA != null && usuario.RolJPA.getIdRol() != 0) {
+                jpql += " AND r.IdRol = :idRol ";
+            }
+            jpql += " ORDER BY u.idUsuario ";
+            TypedQuery<UsuarioJPA> query = entityManager.createQuery(jpql, UsuarioJPA.class);
+            if (usuario.getNombre() != null && !usuario.getNombre().isEmpty()) {
+                query.setParameter("nombre", "%" + usuario.getNombre() + "%");
+            }
+            if (usuario.getApellidoPat() != null && !usuario.getApellidoPat().isEmpty()) {
+                query.setParameter("apellidoPat", "%" + usuario.getApellidoPat() + "%");
+            }
+            if (usuario.getApellidoMat() != null && !usuario.getApellidoMat().isEmpty()) {
+                query.setParameter("apellidoMat", "%" + usuario.getApellidoMat() + "%");
+            }
+            if (usuario.RolJPA != null && usuario.RolJPA.getIdRol() != 0) {
+                query.setParameter("idRol", usuario.RolJPA.getIdRol());
+            }
+            List<UsuarioJPA> usuariosJPA = query.getResultList();
+            Set<UsuarioJPA> setUsuarios = new LinkedHashSet<>(usuariosJPA);
+            usuariosJPA = new ArrayList<>(setUsuarios);
+            result.objects = (List<Object>) (List<?>) usuariosJPA;
+            result.correct = true;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
+//-------------------------------------------------UPDATE STATUS---------------------------------
+
+    @Override
+    @Transactional
+    public Result UpdateStatus(int idUsuario, int status) {
+        Result result = new Result();
+
+        try {
+            UsuarioJPA usuario = entityManager.find(UsuarioJPA.class, idUsuario);
+
+            if (usuario == null) {
+                result.correct = false;
+                result.errorMessage = "Usuario no encontrado";
+                return result;
+            }
+
+            usuario.setStatus(status); // entidad gestionada → se actualiza sola
+            entityManager.flush();     // <-- fuerza escritura inmediata
+
+            result.correct = true;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getMessage();
+        }
+
+        return result;
+    }
 }

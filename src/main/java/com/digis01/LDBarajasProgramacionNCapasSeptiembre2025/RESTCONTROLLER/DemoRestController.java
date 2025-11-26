@@ -187,6 +187,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETESTADOBYPAIS---------------------------------------------------------------
+
     @CrossOrigin
     @GetMapping("/estados/{idPais}")
     public ResponseEntity<Result> GetCEstadobyid(@PathVariable("idPais") int idPais) {
@@ -210,6 +211,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //--------------------------------------GETMUNICIPIOSBYESTADO-------------------------------------
+
     @CrossOrigin
     @GetMapping("/municipios/{idEstado}")
     public ResponseEntity<Result> GetMunicipiobyidestado(@PathVariable("idEstado") int idEstado) {
@@ -233,6 +235,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //----------------------------------------GETCOLONIASBYMUNICIPIO--------------------------------------------------------
+
     @CrossOrigin
     @GetMapping("/colonias/{idMunicipio}")
     public ResponseEntity<Result> GetColoniabyid(@PathVariable("idMunicipio") int idMunicipio) {
@@ -279,6 +282,7 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //-------------------------------------DIRECCIONGETBYIDDIRECCION------------------------
+
     @CrossOrigin
     @GetMapping("/direccion/{idDireccion}")
     public ResponseEntity<Result> GetDIRECCIONByIdDIRECCION(@PathVariable("idDireccion") int idDireccion) {
@@ -382,13 +386,14 @@ public class DemoRestController {
         return ResponseEntity.status(result.Status).body(result);
     }
 //---------------------------------------------UPDATE DIRECCION-------------------------------------------
+
     @PutMapping("/update-direccion/{idUsuario}")
     public ResponseEntity<Result> UpddateDireccion(@PathVariable int idUsuario,
-            @RequestBody DireccionJPA direccionJPA){
+            @RequestBody DireccionJPA direccionJPA) {
         Result result = new Result();
         try {
-            result= usuarioJPADAOImplementation.DireccionUPDATE(direccionJPA, idUsuario);
-            if(result.correct){
+            result = usuarioJPADAOImplementation.DireccionUPDATE(direccionJPA, idUsuario);
+            if (result.correct) {
                 result.Status = 400;
                 return ResponseEntity.status(400).body(result);
             }
@@ -446,5 +451,39 @@ public class DemoRestController {
         }
 
         return ResponseEntity.status(result.Status).body(result);
+    }
+//----------------------------------------------BUSQUEDA DINAMICA----------------------------------------------------
+
+    @PostMapping("/busqueda")
+    public ResponseEntity<Result> BusquedaDinamica(@RequestBody UsuarioJPA usuariofiltro) {
+        Result result = new Result();
+        try {
+            result = usuarioJPADAOImplementation.BusquedaDinamica(usuariofiltro);
+            if (!result.correct) {
+                return ResponseEntity.status(400).body(result);
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+            return ResponseEntity.status(500).body(result);
+        }
+    }
+//---------------------------------------UPDATE STATUS------------------------------------------------------------
+    @CrossOrigin
+    @PutMapping("/update-status/{idUsuario}/{status}")
+    public ResponseEntity<Result> UpdateStatus(@PathVariable int idUsuario, @PathVariable int status) {
+        Result result = usuarioJPADAOImplementation.UpdateStatus(idUsuario, status);
+        try {
+            if (!result.correct) {
+                return ResponseEntity.status(400).body(result);
+            }
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return ResponseEntity.ok(result);
     }
 }

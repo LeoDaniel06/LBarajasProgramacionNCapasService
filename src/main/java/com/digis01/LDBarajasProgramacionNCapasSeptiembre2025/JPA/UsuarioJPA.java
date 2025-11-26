@@ -61,6 +61,9 @@ public class UsuarioJPA {
     @Column(name="imagen")
     private String Imagen;
     
+    @Column(name="status")
+    private int Status;
+    
     @ManyToOne
     @JoinColumn(name="idrol")
     public RolJPA RolJPA;
@@ -174,4 +177,14 @@ public class UsuarioJPA {
     public void setImagen(String Imagen) {
         this.Imagen = Imagen;
     }
+
+    public int getStatus() {
+        return Status;
+    }
+
+    public void setStatus(int Status) {
+        this.Status = Status;
+    }
+    
+    
 }
