@@ -203,7 +203,6 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         return result;
     }
 //    --------------------------UPDATEDIRECCION ------------------------------------
-//
 
     @Override
     @Transactional
@@ -305,45 +304,6 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         }
         return result;
     }
-//-----------------------------------------------CARGA MASIVA-----------------------------------------------
-//
-//    @Override
-//    @Transactional
-//    public Result AddAll(List<UsuarioJPA> usuarios) {
-//        Result result = new Result();
-//        try {
-//            int index = 0;
-//            for (UsuarioJPA usuarioJPA : usuarios) {
-//                // Validar fecha nula
-//                if (usuarioJPA.getFechaNacimiento() == null) {
-//                    usuarioJPA.setFechaNacimiento(null);
-//                }
-//                // Rol → Buscarlo en BD si viene con ID
-//                if (usuarioJPA.RolJPA != null && usuarioJPA.RolJPA.getIdRol() > 0) {
-//                    RolJPA rol = entityManager.find(RolJPA.class, usuarioJPA.RolJPA.getIdRol());
-//                    usuarioJPA.setRolJPA(rol);
-//                } else {
-//                    usuarioJPA.setRolJPA(null);
-//                }
-//                // Guardar usuario
-//                entityManager.persist(usuarioJPA);
-//                // Optimización por lotes
-//                if (index % 50 == 0) {
-//                    entityManager.flush();
-//                    entityManager.clear();
-//                }
-//                index++;
-//                result.correct = true;
-//            }
-//
-//        } catch (Exception ex) {
-//            result.correct = false;
-//            result.errorMessage = ex.getLocalizedMessage();
-//            result.ex = ex;
-//        }
-//
-//        return result;
-//    }
 ////------------------------------------------BUSQUEDA DINAMICA--------------------------------------------------------------------
 
     @Override
@@ -412,8 +372,8 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                 return result;
             }
 
-            usuario.setStatus(status); // entidad gestionada → se actualiza sola
-            entityManager.flush();     // <-- fuerza escritura inmediata
+            usuario.setStatus(status);
+            entityManager.flush();
 
             result.correct = true;
         } catch (Exception ex) {
@@ -421,6 +381,74 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             result.errorMessage = ex.getMessage();
         }
 
+        return result;
+    }
+//-----------------------------------------------------------CODIGOPOSTAL------------------------------------------------
+
+    @Override
+    public Result GetInfoByCP(String codigoPostal) {
+        Result result = new Result();
+
+        try {
+            List<Object[]> lista = entityManager.createQuery(
+                    "SELECT c, m, e, p "
+                    + "FROM ColoniaJPA c "
+                    + "JOIN c.MunicipioJPA m "
+                    + "JOIN m.EstadoJPA e "
+                    + "JOIN e.PaisJPA p "
+                    + "WHERE c.CodigoPostal = :codigopostal",
+                    Object[].class)
+                    .setParameter("codigopostal", codigoPostal)
+                    .getResultList();
+
+            if (lista.isEmpty()) {
+                result.correct = false;
+                result.errorMessage = "No se encontró información para ese código postal";
+                return result;
+            }
+
+            result.correct = true;
+            result.object = lista;
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getMessage();
+            result.ex = ex;
+        }
+
+        return result;
+    }
+//-----------------------------------------------CARGA MASIVA-----------------------------------------------
+
+    @Override
+    @Transactional
+    public Result AddAll(List<UsuarioJPA> usuarios) {
+        Result result = new Result();
+        try {
+            int index = 0;
+            for (UsuarioJPA usuarioJPA : usuarios) {
+                if (usuarioJPA.getFechaNacimiento() == null) {
+                    usuarioJPA.setFechaNacimiento(null);
+                }
+                if (usuarioJPA.RolJPA != null && usuarioJPA.RolJPA.getIdRol() > 0) {
+                    RolJPA rol = entityManager.find(RolJPA.class, usuarioJPA.RolJPA.getIdRol());
+                    usuarioJPA.RolJPA = rol;
+                } else {
+                    usuarioJPA.RolJPA = null;
+                }
+                entityManager.persist(usuarioJPA);
+                if (index % 50 == 0) {
+                    entityManager.flush();
+                    entityManager.clear();
+                }
+                index++;
+                result.correct = true;
+            }
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
         return result;
     }
 }

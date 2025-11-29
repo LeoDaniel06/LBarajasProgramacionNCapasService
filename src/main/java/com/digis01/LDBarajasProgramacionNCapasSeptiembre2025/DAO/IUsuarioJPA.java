@@ -19,7 +19,8 @@ public interface IUsuarioJPA{
     Result UpdateImagen(int idUsuario, String NuevaImgenB64);
     Result GetById(int idUsuario);
     Result GetDireccionBYIdDireccion(int idDireccion);
-//    Result AddAll(List<UsuarioJPA> usuarios);
+    Result AddAll(List<UsuarioJPA> usuarios);
     Result BusquedaDinamica(UsuarioJPA usuario);
     Result UpdateStatus(int idUsuario, int Status);
+    Result GetInfoByCP(String CodigoPostal);
 }

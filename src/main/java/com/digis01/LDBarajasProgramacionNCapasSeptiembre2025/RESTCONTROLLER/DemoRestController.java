@@ -13,6 +13,7 @@ import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.UsuarioJPA;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -471,6 +472,7 @@ public class DemoRestController {
         }
     }
 //---------------------------------------UPDATE STATUS------------------------------------------------------------
+
     @CrossOrigin
     @PutMapping("/update-status/{idUsuario}/{status}")
     public ResponseEntity<Result> UpdateStatus(@PathVariable int idUsuario, @PathVariable int status) {
@@ -485,5 +487,33 @@ public class DemoRestController {
             result.ex = ex;
         }
         return ResponseEntity.ok(result);
+    }
+//------------------------------------------------CODIGO POSTAL-----------------------------------
+    @CrossOrigin
+    @GetMapping("/codigopostal/{codigoPostal}")
+    public ResponseEntity<Result> GetInfoByCP(@PathVariable("codigoPostal") String codigoPostal) {
+        Result result = new Result();
+
+        try {
+            if (codigoPostal.length() != 5 || !codigoPostal.matches("\\d+")) {
+                result.correct = false;
+                result.errorMessage = "El código postal debe ser de 5 números";
+                return ResponseEntity.badRequest().body(result);
+            }
+
+            result = usuarioJPADAOImplementation.GetInfoByCP(codigoPostal);
+
+            if (!result.correct) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+            }
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = "Error en el servidor";
+            result.ex = ex;
+            return ResponseEntity.internalServerError().body(result);
+        }
     }
 }
