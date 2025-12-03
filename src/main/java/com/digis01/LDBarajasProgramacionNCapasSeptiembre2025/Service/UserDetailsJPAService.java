@@ -27,10 +27,11 @@ public class UserDetailsJPAService implements UserDetailsService {
         }
         boolean enabled = usuario.getStatus() == 1;
         String rol = usuario.RolJPA.getNombre();
+        String rolSpring = rol.toUpperCase();
         return org.springframework.security.core.userdetails.User
                 .withUsername(usuario.getUserName())
                 .password(usuario.getPassword())
-                .roles(rol)
+                .roles(rolSpring)
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)

@@ -45,78 +45,6 @@ public class DemoRestController {
     @Autowired
     private MunicipioJPADAOImplementation municipioJPADAOImplementation;
 
-    @GetMapping("saludo")
-    public String Saludo(@RequestParam("Nombre") String nombre) {
-
-        return "Hola " + nombre;
-    }
-
-    @GetMapping("division")
-    public ResponseEntity Division(@RequestParam("NumeroUno") int numeroUno, @RequestParam("NumeroDos") int numeroDos) {
-        Result result = new Result();
-        try {
-            if (numeroDos == 0) {
-                result.correct = false;
-                result.errorMessage = "Syntax Error";
-                result.Status = 400;
-            } else {
-                int division = numeroUno / numeroDos;
-                result.object = division;
-                result.correct = true;
-                result.Status = 200;
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
-            result.Status = 500;
-        }
-        return ResponseEntity.status(result.Status).body(result);
-    }
-
-    @GetMapping("multiplicacion")
-    public ResponseEntity Multiplicacion(@RequestParam("NumeroUno") int numeroUno, @RequestParam("NumeroDos") int numeroDos) {
-        Result result = new Result();
-        try {
-            if (numeroDos == 0) {
-                result.correct = false;
-                result.errorMessage = "No puede multiplicar por 0";
-                result.Status = 400;
-            } else {
-                int multiplicacion = numeroUno * numeroDos;
-                result.object = multiplicacion;
-                result.correct = true;
-                result.Status = 200;
-            }
-        } catch (Exception ex) {
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
-            result.Status = 500;
-        }
-        return ResponseEntity.status(result.Status).body(result);
-    }
-
-    @GetMapping("suma")
-    public ResponseEntity Suma(@RequestParam("Numero") List<Integer> numeros) {
-        Result result = new Result();
-        int total = 0;
-        try {
-            for (Integer num : numeros) {
-                total += num;
-            }
-            result.object = total;
-            result.correct = true;
-            result.Status = 200;
-        } catch (Exception ex) {
-            result.correct = false;
-            result.errorMessage = ex.getLocalizedMessage();
-            result.ex = ex;
-            result.Status = 500;
-        }
-        return ResponseEntity.status(result.Status).body(result);
-//        return ResponseEntity.ok(total);
-    }
 //-------------------------------GETALLUSSUARIOS-----------------------------------------------
 
     @GetMapping()
@@ -189,7 +117,6 @@ public class DemoRestController {
     }
 //----------------------------------------GETESTADOBYPAIS---------------------------------------------------------------
 
-    @CrossOrigin
     @GetMapping("/estados/{idPais}")
     public ResponseEntity<Result> GetCEstadobyid(@PathVariable("idPais") int idPais) {
         Result result = new Result();
@@ -213,7 +140,6 @@ public class DemoRestController {
     }
 //--------------------------------------GETMUNICIPIOSBYESTADO-------------------------------------
 
-    @CrossOrigin
     @GetMapping("/municipios/{idEstado}")
     public ResponseEntity<Result> GetMunicipiobyidestado(@PathVariable("idEstado") int idEstado) {
         Result result = new Result();
@@ -237,7 +163,6 @@ public class DemoRestController {
     }
 //----------------------------------------GETCOLONIASBYMUNICIPIO--------------------------------------------------------
 
-    @CrossOrigin
     @GetMapping("/colonias/{idMunicipio}")
     public ResponseEntity<Result> GetColoniabyid(@PathVariable("idMunicipio") int idMunicipio) {
         Result result = new Result();
@@ -284,7 +209,6 @@ public class DemoRestController {
     }
 //-------------------------------------DIRECCIONGETBYIDDIRECCION------------------------
 
-    @CrossOrigin
     @GetMapping("/direccion/{idDireccion}")
     public ResponseEntity<Result> GetDIRECCIONByIdDIRECCION(@PathVariable("idDireccion") int idDireccion) {
         Result result = new Result();
@@ -473,7 +397,6 @@ public class DemoRestController {
     }
 //---------------------------------------UPDATE STATUS------------------------------------------------------------
 
-    @CrossOrigin
     @PutMapping("/update-status/{idUsuario}/{status}")
     public ResponseEntity<Result> UpdateStatus(@PathVariable int idUsuario, @PathVariable int status) {
         Result result = usuarioJPADAOImplementation.UpdateStatus(idUsuario, status);
@@ -489,7 +412,7 @@ public class DemoRestController {
         return ResponseEntity.ok(result);
     }
 //------------------------------------------------CODIGO POSTAL-----------------------------------
-    @CrossOrigin
+    
     @GetMapping("/codigopostal/{codigoPostal}")
     public ResponseEntity<Result> GetInfoByCP(@PathVariable("codigoPostal") String codigoPostal) {
         Result result = new Result();
