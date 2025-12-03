@@ -29,7 +29,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter)
             throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -39,27 +38,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(
-                        "/api/usuario/**",
-                        "/api/usuario/roles/**",
-                        "/api/usuario/paises/**",
-                        "/api/usuario/estados/**",
-                        "/api/usuario/municipios/**",
-                        "/api/usuario/colonias/**",
                         "/api/usuario/add/**",
-                        "/api/usuario/add-direccion/**",
-                        "/api/usuario/update-imagen/**",
                         "/api/usuario/update/**",
-                        "/api/usuario/update-direccion/**",
                         "/api/usuario/delete-usuario/**",
-                        "/api/usuario/delete-direccion/**",
-                        "/api/usuario/busqueda/**",
                         "/api/usuario/update-status/**",
-                        "/api/usuario/codigopostal/**",
-                        "/api/usuario/detail/**",
-                        "/api/usuario/direccion/**"
+                        "/api/usuario/busqueda/**"
                 ).hasRole("ADMINISTRADOR")
-                .requestMatchers("/api/usuario/detail/**",
-                        "/api/usuario/roles/**",
+                .requestMatchers(
+                        "/api/usuario/detail/**",
                         "/api/usuario/paises/**",
                         "/api/usuario/estados/**",
                         "/api/usuario/municipios/**",
@@ -69,8 +55,8 @@ public class SecurityConfig {
                         "/api/usuario/update-direccion/**",
                         "/api/usuario/delete-direccion/**",
                         "/api/usuario/codigopostal/**",
-                        "/api/usuario/direccion/**")
-                .hasAnyRole("ASISTENTE", "GERENTE", "SUBGERENTE", "COLABORADOR")
+                        "/api/usuario/direccion/**"
+                ).hasAnyRole("ADMINISTRADOR", "GERENTE", "ASISTENTE", "SUBGERENTE", "COLABORADOR")
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session

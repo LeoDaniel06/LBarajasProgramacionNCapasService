@@ -20,10 +20,11 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, Integer idUsuario) {
         Map<String, Object> claims = new HashMap<>();
         String roleName = userDetails.getAuthorities().iterator().next().getAuthority();
         claims.put("Authorities", roleName);
+        claims.put("idUsuario",idUsuario);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -43,7 +44,7 @@ public class JwtService {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
@@ -53,5 +54,9 @@ public class JwtService {
 
     private boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    public Integer extractIdUsuario(String token) {
+        return extractAllClaims(token).get("idUsuario", Integer.class);
     }
 }
