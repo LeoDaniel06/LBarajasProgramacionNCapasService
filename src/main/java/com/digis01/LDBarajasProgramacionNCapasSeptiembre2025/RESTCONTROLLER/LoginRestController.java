@@ -30,19 +30,30 @@ public class LoginRestController {
     private final UserDetailsJPAService userDetailsJPAService;
 
     public LoginRestController(AuthenticationManager authenticationManager,
-                               JwtService jwtService, 
-                               UserDetailsJPAService userDetailsJPAService) {
+            JwtService jwtService,
+            UserDetailsJPAService userDetailsJPAService) {
 
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsJPAService = userDetailsJPAService;
     }
 
-    // -------------------------------
-    // LOGIN: genera el token
-    // -------------------------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+         UsuarioJPA usuario = usuarioRepository.findByUserName(request.getUsername());
+
+        if (usuario == null) {
+            return ResponseEntity.status(401).body("Usuario o contraseña incorrectos");
+        }
+
+        if (usuario.getStatus() == 0) {
+            return ResponseEntity.status(403).body("Usuario inactivo");
+        }
+
+        if (usuario.getIsVerified() == 0) {
+            return ResponseEntity.status(403).body("Correo no verificado");
+        }
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -51,30 +62,20 @@ public class LoginRestController {
         );
 
         UserDetails userDetails = userDetailsJPAService.loadUserByUsername(request.getUsername());
-        UsuarioJPA usuario = usuarioRepository.findByUserName(request.getUsername());
-
         String token = jwtService.generateToken(userDetails, usuario.getIdUsuario());
+
         return ResponseEntity.ok(new TokenResponse(token));
     }
 
-
-    // -------------------------------
-    // NUEVO ENDPOINT
-    // Obtiene información del token
-    // -------------------------------
     @GetMapping("/user-info")
     public Map<String, Object> obtenerInfo(@RequestHeader("Authorization") String token) {
 
-        // quitar "Bearer "
         token = token.replace("Bearer ", "");
-
         Claims claims = jwtService.extractAllClaims(token);
-
         Map<String, Object> data = new HashMap<>();
         data.put("idUsuario", claims.get("idUsuario", Integer.class));
         data.put("role", claims.get("Authorities", String.class));
         data.put("username", claims.getSubject());
-
         return data;
     }
 }

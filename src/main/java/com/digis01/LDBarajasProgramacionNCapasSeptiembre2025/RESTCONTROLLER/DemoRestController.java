@@ -2,23 +2,26 @@ package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.RESTCONTROLLER;
 
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.ColoniaJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.EstadoJPADAOImplementation;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.IUsuarioRepositoryDAO;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.MunicipioJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.PaisJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.RolJPADAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.UsuarioJPADAOImplementation;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.DAO.VerificationTokenDAOImplementation;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.DireccionJPA;
-import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.MunicipioJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.UsuarioJPA;
-import java.util.List;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.VerificationTokenJPA;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.Service.EmailService;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.Service.VerificationEmailProducer;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,9 +47,16 @@ public class DemoRestController {
     private EstadoJPADAOImplementation estadoJPADAOImplementation;
     @Autowired
     private MunicipioJPADAOImplementation municipioJPADAOImplementation;
+    @Autowired
+    private VerificationEmailProducer verificationEmailProducer;
+    @Autowired
+    private VerificationTokenDAOImplementation verificationTokenDAOImplementation;
+    @Autowired
+    private IUsuarioRepositoryDAO iUsuarioRepositoryDAO;
+    @Autowired
+    private EmailService emailService;
 
 //-------------------------------GETALLUSSUARIOS-----------------------------------------------
-
     @GetMapping()
     public ResponseEntity<Result> getAllUsuarios() {
         Result result;
@@ -238,6 +248,15 @@ public class DemoRestController {
         try {
             result = usuarioJPADAOImplementation.Add(usuarioJPA);
             if (result.correct) {
+                UsuarioJPA nuevo = (UsuarioJPA) result.object;
+                String token = UUID.randomUUID().toString();
+                VerificationTokenJPA verificationToken = new VerificationTokenJPA(
+                        token,
+                        nuevo,
+                        LocalDateTime.now().plusHours(24));
+                verificationTokenDAOImplementation.Add(verificationToken);
+                verificationEmailProducer.sendVerificationEmail(nuevo.getEmail(), token);
+
                 result.Status = 201;
             } else {
                 result.Status = 400;
@@ -412,7 +431,7 @@ public class DemoRestController {
         return ResponseEntity.ok(result);
     }
 //------------------------------------------------CODIGO POSTAL-----------------------------------
-    
+
     @GetMapping("/codigopostal/{codigoPostal}")
     public ResponseEntity<Result> GetInfoByCP(@PathVariable("codigoPostal") String codigoPostal) {
         Result result = new Result();
@@ -438,5 +457,69 @@ public class DemoRestController {
             result.ex = ex;
             return ResponseEntity.internalServerError().body(result);
         }
+    }
+//--------------------------------VERIFICACION DE CORREO-----------------------------------------------------
+
+    @GetMapping("/verificacion/confirmar")
+    public ResponseEntity<Void> verificarCorreo(@RequestParam String token) {
+
+        VerificationTokenJPA verificationToken
+                = verificationTokenDAOImplementation.findByToken(token);
+
+        if (verificationToken == null
+                || verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    .header(HttpHeaders.LOCATION,
+                            "http://localhost:8081/usuario/verificacion-error")
+                    .build();
+        }
+
+//        UsuarioJPA usuario = verificationToken.getUsuarioJPA();
+        UsuarioJPA usuario = verificationToken.getUsuario();
+        usuario.setIsVerified(1);
+        usuarioJPADAOImplementation.UpdateVerification(usuario);
+
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION,
+                        "http://localhost:8081/usuario/verificado")
+                .build();
+    }
+//-----------------------------------------REENVIO DE CORREO VERIFICACION------------------------------------------------------------
+
+    @PostMapping("/reenviar-verificacion")
+    public ResponseEntity<?> ReenviarCorrreo(@RequestParam String username) {
+
+        UsuarioJPA usuario = iUsuarioRepositoryDAO.findByUserName(username);
+
+        if (usuario == null) {
+            return ResponseEntity.badRequest().body("Usuario no existe");
+        }
+
+        if (usuario.getIsVerified() == 1) {
+            return ResponseEntity.ok("Usuario ya verificado");
+        }
+
+        VerificationTokenJPA tokenAnterior
+                = verificationTokenDAOImplementation.findByUsuario(usuario);
+
+        if (tokenAnterior != null) {
+            verificationTokenDAOImplementation.delete(tokenAnterior);
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        VerificationTokenJPA nuevoToken = new VerificationTokenJPA(
+                token,
+                usuario,
+                LocalDateTime.now().plusHours(24)
+        );
+
+        verificationTokenDAOImplementation.Add(nuevoToken);
+        emailService.sendVerificationEmail(usuario.getEmail(), token);
+
+        return ResponseEntity.ok("Correo enviado");
     }
 }

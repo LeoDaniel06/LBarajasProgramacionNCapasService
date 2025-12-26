@@ -23,4 +23,5 @@ public interface IUsuarioJPA{
     Result BusquedaDinamica(UsuarioJPA usuario);
     Result UpdateStatus(int idUsuario, int Status);
     Result GetInfoByCP(String CodigoPostal);
+    Result UpdateVerification(UsuarioJPA usuarioJPA);
 }

@@ -3,12 +3,14 @@ package com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,6 +65,9 @@ public class UsuarioJPA {
     
     @Column(name="status")
     private int Status;
+    
+    @Column(name="isverified")
+    private int IsVerified;
     
     @ManyToOne
     @JoinColumn(name="idrol")
@@ -185,6 +190,13 @@ public class UsuarioJPA {
     public void setStatus(int Status) {
         this.Status = Status;
     }
-    
-    
+
+    public int getIsVerified() {
+        return IsVerified;
+    }
+
+    public void setIsVerified(int IsVerified) {
+        this.IsVerified= IsVerified;
+    }
+
 }

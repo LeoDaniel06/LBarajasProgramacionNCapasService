@@ -5,6 +5,7 @@ import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.DireccionJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.RolJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.UsuarioJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.VerificationTokenJPA;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
@@ -121,11 +122,16 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result Add(UsuarioJPA usuarioJPA) {
         Result result = new Result();
         try {
+            usuarioJPA.setIsVerified(0);
+            usuarioJPA.setStatus(1);
             if (usuarioJPA.DireccionesJPA != null && !usuarioJPA.DireccionesJPA.isEmpty()) {
+
                 usuarioJPA.DireccionesJPA.get(0).UsuarioJPA = usuarioJPA;
+
             }
             entityManager.persist(usuarioJPA);
             entityManager.flush();
+
             result.correct = true;
             result.object = usuarioJPA;
         } catch (Exception ex) {
@@ -257,7 +263,22 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         }
         return result;
     }
-
+//-----------------------------------------UPDATE VERIFICACION-----------------------------------------------------------------
+    
+    @Override
+    @Transactional
+    public Result UpdateVerification(UsuarioJPA usuarioJPA){
+        Result result = new Result();
+        try {
+            entityManager.merge(usuarioJPA);
+            result.correct = true;
+        } catch (Exception ex) {
+            result.correct = false;
+            result.errorMessage = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
 //    -------------------------------------DELETE USUARIO---------------------------------------------------
     @Override
     @Transactional
@@ -266,14 +287,25 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
         try {
             UsuarioJPA usuarioJPA = entityManager.find(UsuarioJPA.class, idUsuario);
-            if (usuarioJPA != null) {
-                entityManager.remove(usuarioJPA);
-                entityManager.flush();
-                result.correct = true;
-            } else {
+            if (usuarioJPA == null) {
                 result.correct = false;
                 result.errorMessage = "Usuario no existe";
+                return result;
             }
+            VerificationTokenJPA verificationTokenJPA = entityManager
+                    .createQuery(
+                            "FROM VerificationTokenJPA WHERE Usuario =:usuario",
+                            VerificationTokenJPA.class)
+                    .setParameter("usuario", usuarioJPA)
+                    .getResultStream()
+                    .findFirst()
+                    .orElse(null);
+            if (verificationTokenJPA != null) {
+                entityManager.remove(verificationTokenJPA);
+            }
+            entityManager.remove(usuarioJPA);
+            entityManager.flush();
+            result.correct = true;
         } catch (Exception ex) {
             result.correct = false;
             result.errorMessage = ex.getLocalizedMessage();
