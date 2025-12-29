@@ -6,6 +6,7 @@ import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.RolJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.UsuarioJPA;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.Result;
 import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.JPA.VerificationTokenJPA;
+import com.digis01.LDBarajasProgramacionNCapasSeptiembre2025.Service.JwtService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,8 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 //-----------------------------------------------------GETALL----------------------------------------------------------------------
     @Override
